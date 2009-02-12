@@ -207,6 +207,10 @@ class TracShell(cmd.Cmd):
         """
         Set an option using a query string.
 
+        Valid options are:
+
+        - `editor`: A valid path to your favorite editor
+
         See `help queries` for more information.
         
         Arguments:
