@@ -1,5 +1,7 @@
 import os, sys
 import cmd
+import subprocess
+import tempfile
 import xmlrpclib
 
 VERSION = 0.1
@@ -29,7 +31,8 @@ class TracShell(cmd.Cmd):
         self._host = host
         self._port = port
         self._rpc_path = rpc_path
-        self._server = self._setup()
+        self._server = self._connect()
+        self._editor = self._find_editor()
 
         # set up shell options
         cmd.Cmd.__init__(self)
@@ -37,7 +40,7 @@ class TracShell(cmd.Cmd):
         self.ruler = '-'
         self.intro = "Welcome to TracShell!\nType `help` for a list of commands"
 
-    def _setup(self):
+    def _connect(self):
         """
         Return an xmlrpc.ServerProxy instance
         """
@@ -47,6 +50,18 @@ class TracShell(cmd.Cmd):
                                              self._port,
                                              self._rpc_path)
         return xmlrpclib.ServerProxy(conn_str)
+
+    def _find_editor(self):
+        """
+        Try to find the users' editor by testing
+        the $EDITOR environment variable, warn the
+        user if one isn't found and return None.
+        """
+        try:
+            return os.environ['EDITOR']
+        except KeyError:
+            print "Warning: No editor found, see `help editors`"
+            return None
 
     def do_query(self, query):
         """
@@ -103,23 +118,43 @@ class TracShell(cmd.Cmd):
         NOT YET IMPLEMENTED
 
         Arguments:
-        - `title`: Title of the ticket
-        - `desc`: Ticket description
-        - `type`: Type of the ticket
-        - `priority`: Ticket priority
-        - `component`: The component this ticket applies to
-        - `version`: The version this ticket applies to
+        - `summary`: Title of the ticket
         """
         # would like to launch a blank template tmp file
         # and parse the returned file
         try:
-            (title,
-             desc,
-             type,
-             priority,
-             component,
-             version) = param_str.split(' ')
-            print "`create` not implemented"
+            fname = tempfile.mktemp()
+            fh = open(fname, "w")
+            template_lines = ["summary=%s\n" % param_str,
+                              "reporter=\n",
+                              "description=\n",
+                              "type=\n",
+                              "priority=\n",
+                              "component=\n",
+                              "milestone=\n",
+                              "version=\n",
+                              "keywords=\n"]
+            fh.writelines(template_lines)
+            fh.close()
+            subprocess.call([self._editor, fname])
+            try:
+                data = self.parse_ticket_file(open(fname))
+            except ValueError:
+                print "Something went wrong or the file was formatted"
+                print "wrong. Please try submitting the ticket again"
+                print "or file a bug report with the TracShell devs."
+                return False
+            try:
+                id = self._server.ticket.create(data.pop("summary"),
+                                                data.pop("description"),
+                                                data)
+            except Exception, e:
+                print "A problem has occurred communicating with Trac."
+                print "Error: %s" % e
+                print "Please file a bug report with the TracShell devs."
+                return False
+            if id:
+                print "Created ticket %s: %s" % (id, param_str)
         except Exception, e:
             print e
             print "Try `help create` for more info"
@@ -150,6 +185,73 @@ class TracShell(cmd.Cmd):
             print "Try `help edit` for more info"
             pass
 
+    # option setter funcs
+    # see `do_set`
+
+    def set_editor(self, editor):
+        """
+        Set the path to the editor to invoke for manipulating
+        tickets, comments, etc.
+        
+        Arguments:
+        - `editor`: the path to an editor
+        """
+        if os.path.exists(editor):
+            self._editor = editor
+        else:
+            raise ValueError, "Not a valid path to an editor"
+
+    # misc support funcs
+
+    def do_set(self, query_str):
+        """
+        Set an option using a query string.
+
+        See `help queries` for more information.
+        
+        Arguments:
+        - `query_str`: A query string of options to set
+        """
+        try:
+            data = self.parse_query_str(query_str)
+        except ValueError:
+            print "Warning: Invalid query string for `set`"
+            print "Try fixing %s" % query_str
+            print "See `help queries` for more information."
+            pass
+
+        for k, v in data.iteritems():
+            if hasattr(self, 'set_%s' % k):
+                try:
+                    getattr(self, 'set_%s' % k)(v)
+                except Exception, e:
+                    print e
+                    pass
+        
+    def parse_query_str(self, string):
+        """
+        Parse a query string
+        
+        Arguments:
+        - `string`: A string in the form of field=val
+                    and seperated by &.
+        """
+        pairs = string.split('&')
+        data = dict([item.split('=') for item in pairs])
+        return data
+
+    def parse_ticket_file(self, fh):
+        """
+        Parses a file with field=val bits on each line.
+        Returns a dictionary of key: val pairs.
+        
+        Arguments:
+        - `fh`: a python file object to parse
+        """
+        lines = fh.readlines()
+        data = dict([line.split('=') for line in lines])
+        return data
+
     def do_quit(self, _):
         """
         Quit the program
@@ -178,5 +280,19 @@ class TracShell(cmd.Cmd):
 
         Don't be afraid of spaces in the values. Everything
         is handled and interpreted correctly.
+        """
+        print text
+
+    def help_editors(self):
+        text = """
+        TracShell uses your preferred text editor for
+        editing and creating tickets, comments, and so
+        forth. It tries to find your preferred editor
+        by looking for it in the $EDITOR environment
+        variable.
+
+        If not set, you may get a warning. In this case,
+        see the `help set` command for setting up options
+        inside the TracShell.
         """
         print text
