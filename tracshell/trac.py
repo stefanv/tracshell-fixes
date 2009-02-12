@@ -266,9 +266,6 @@ class TracShell(cmd.Cmd):
 
     def help_queries(self):
         text = """
-        The argument to pass to the `query` command
-        is a special Trac query string.
-
         Query strings take the form of:
 
            field=value
@@ -279,7 +276,9 @@ class TracShell(cmd.Cmd):
            field1=value1&field2=value2
 
         Don't be afraid of spaces in the values. Everything
-        is handled and interpreted correctly.
+        is handled and interpreted correctly. Just make sure
+        that there's one '=' between field and value and one
+        '&' between field/value pairs.
         """
         print text
 
