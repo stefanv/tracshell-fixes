@@ -6,4 +6,6 @@ TracShell.egg-info/dependency_links.txt
 TracShell.egg-info/entry_points.txt
 TracShell.egg-info/top_level.txt
 TracShell.egg-info/zip-safe
+bin/tracshell
 tracshell/__init__.py
+tracshell/trac.py

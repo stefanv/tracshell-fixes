@@ -35,7 +35,7 @@ class TracShell(cmd.Cmd):
         cmd.Cmd.__init__(self)
         self.prompt = "trac->> "
         self.ruler = '-'
-        self.intro = "Welcome to Tint!\nType `help` for a list of commands"
+        self.intro = "Welcome to TracShell!\nType `help` for a list of commands"
 
     def _setup(self):
         """

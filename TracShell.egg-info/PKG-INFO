@@ -1,6 +1,6 @@
 Metadata-Version: 1.0
 Name: TracShell
-Version: 0.1dev
+Version: 0.1dev-r3
 Summary: A command line shell interface to remote Trac instances.
 Home-page: http://code.google.com/p/tracshell/
 Author: J Kenneth King
