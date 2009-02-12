@@ -33,7 +33,7 @@ class TracShell(cmd.Cmd):
 
         # set up shell options
         cmd.Cmd.__init__(self)
-        self.prompt = "tint->> "
+        self.prompt = "trac->> "
         self.ruler = '-'
         self.intro = "Welcome to Tint!\nType `help` for a list of commands"
 
