@@ -1,0 +1,9 @@
+setup.cfg
+setup.py
+TracShell.egg-info/PKG-INFO
+TracShell.egg-info/SOURCES.txt
+TracShell.egg-info/dependency_links.txt
+TracShell.egg-info/entry_points.txt
+TracShell.egg-info/top_level.txt
+TracShell.egg-info/zip-safe
+tracshell/__init__.py

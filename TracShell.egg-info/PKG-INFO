@@ -1,0 +1,11 @@
+Metadata-Version: 1.0
+Name: TracShell
+Version: 0.1dev
+Summary: A command line shell interface to remote Trac instances.
+Home-page: http://code.google.com/p/tracshell/
+Author: J Kenneth King
+Author-email: james@agentultra.com
+License: Artistic/GPL
+Description: UNKNOWN
+Keywords: trac python utilities
+Platform: UNKNOWN
