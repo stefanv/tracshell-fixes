@@ -113,15 +113,13 @@ class TracShell(cmd.Cmd):
         """
         Create and submit a new ticket to Trac instance
 
-        tint->> create `title` `desc` `type` ...
+        tint->> create My Important Ticket Summary
 
-        NOT YET IMPLEMENTED
+        IMPLEMENTED BUT BUGGY
 
         Arguments:
         - `summary`: Title of the ticket
         """
-        # would like to launch a blank template tmp file
-        # and parse the returned file
         try:
             fname = tempfile.mktemp()
             fh = open(fname, "w")
@@ -164,26 +162,50 @@ class TracShell(cmd.Cmd):
         """
         Edit a ticket in Trac
 
-        tint->> edit `ticket_id` `field_query`
+        tint->> edit 123
 
-        NOT YET IMPLEMENTED
+        IMPLEMENTED BUT BUGGY
 
         Arguments:
         - `ticket_id`: Returns None if empty
-        - `field_query`: A query string of values to update.
-                         (See `help queries` for more info.)
         """
-        # would like to launch users' editor
-        # and populate a tmp file with the ticket info
-        # and parse the returned tmp file, submitting
-        # the changed fields
         try:
-            (ticket_id, field_query) = param_str.split(' ')
-            print "`edit` not implemented"
+            (id, created, modified, data) = self._server.ticket.get(param_str)
         except Exception, e:
-            print e
-            print "Try `help edit` for more info"
-            pass
+            print "A problem has occurred communicating with Trac."
+            print "Error: %s" % e
+            print "Please file a bug report with the TracShell devs."
+            return False
+        data['comment'] = "Your comment here"
+        tmp_lines = ["%s=%s\n" % (k, v) for k, v in data.iteritems()]
+        fname = tempfile.mktemp()
+        fh = open(fname, "w")
+        fh.writelines(tmp_lines)
+        fh.close()
+        subprocess.call([self._editor, fname])
+        try:
+            data = self.parse_ticket_file(open(fname))
+        except ValueError:
+            print "Something went wrong or the file was formatted"
+            print "wrong. Please try submitting the ticket again"
+            print "or file a bug report with the TracShell devs."
+            return False
+        try:
+            (new_id,
+             new_created,
+             new_modified,
+             new_data) = self._server.ticket.update(id,
+                                                    data.pop('comment'),
+                                                    data)
+        except Exception, e:
+            print "A problem has occurred communicating with Trac."
+            print "Error: %s" % e
+            print "Please file a bug report with the TracShell devs."
+            return False
+        print "Updated Details for Ticket: %s" % id
+        print " "
+        for k, v in data.iteritems():
+            print "%15s: %s" % (k, v)
 
     # option setter funcs
     # see `do_set`
