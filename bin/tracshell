@@ -2,13 +2,13 @@
 
 import sys
 from optparse import OptionParser
-from tracshell import trac
+from tracshell import shell
 
 def run():
     """
     This function starts the main program.
     """
-    p = OptionParser(version="tint: %f" % trac.VERSION)
+    p = OptionParser(version="tint: %f" % shell.VERSION)
     p.add_option("--host", "-t", dest="host",
                  action="store", type="string",
                  default="localhost", help="Trac instance host")
@@ -26,11 +26,11 @@ def run():
                  default="/login/xmlrpc", help="XML-RPC path")
     opts, args = p.parse_args()
 
-    tracshell = trac.TracShell(opts.user,
-                               opts.passwd,
-                               opts.host,
-                               port=opts.port,
-                               rpc_path=opts.rpc_path)
+    tracshell = shell.TracShell(opts.user,
+                                opts.passwd,
+                                opts.host,
+                                port=opts.port,
+                                rpc_path=opts.rpc_path)
 
     tracshell.cmdloop()
 
