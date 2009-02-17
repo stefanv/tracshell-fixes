@@ -95,5 +95,5 @@ class Trac(object):
     def update_ticket(self, id, comment, data):
         """
         Update a ticket in the Trac database
-	"""
+        """
         self._server.ticket.update(id, comment, data)

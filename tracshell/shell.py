@@ -47,17 +47,6 @@ class TracShell(cmd.Cmd):
         self.ruler = '-'
         self.intro = "Welcome to TracShell!\nType `help` for a list of commands"
 
-    def _connect(self):
-        """
-        Return an xmlrpc.ServerProxy instance
-        """
-        conn_str = "http://%s:%s@%s:%s%s" % (self._username,
-                                             self._password,
-                                             self._host,
-                                             self._port,
-                                             self._rpc_path)
-        return xmlrpclib.ServerProxy(conn_str)
-
     def _find_editor(self):
         """
         Try to find the users' editor by testing
@@ -110,7 +99,7 @@ class TracShell(cmd.Cmd):
         """
         Create and submit a new ticket to Trac instance
 
-        tint->> create `title` `desc` `type` ...
+        trac->> create `title` `desc` `type` ...
 
         This feature works but is still under development.
         Please report any bugs you find.
@@ -162,37 +151,38 @@ class TracShell(cmd.Cmd):
         """
         Edit a ticket in Trac
 
-        tint->> edit `ticket_id` `field_query`
+        trac->> edit `ticket_id` `field_query`
 
         This feature is still under development.
         Please report any bugs you find.
         
         Arguments:
-        - `ticket_id`: Returns None if empty
-        - `field_query`: A query string of values to update.
-                         (See `help queries` for more info.)
+        - `ticket_id`: the id of the ticket to edit
         """
 
         ticket = self.trac.get_ticket(int(ticket_id))
-        (id, created, modified, data) = ticket
-        data['comment'] = "Your comment here"
-        lines = ['%s=%s\n' % (k, v.rstrip())
-                 for k, v in data.iteritems()]
-        fname = tempfile.mktemp()
-        fh = open(fname, "w")
-        fh.writelines(lines)
-        fh.close()
-        subprocess.call([self._editor, fname])
-        try:
-            data = self.parse_ticket_file(open(fname))
-        except ValueError:
-            print "Something went wrong or the file was formatted"
-            print "wrong. Please try submitting the ticket again"
-            print "or file a bug report with the TracShell devs."
-            return False
-        comment = data.pop('comment')
-        self.trac.update_ticket(id, comment, data)
-        print "Updated ticket %s: %s" % (id, comment)
+        if ticket:
+            (id, created, modified, data) = ticket
+            data['comment'] = "Your comment here"
+            lines = ['%s=%s\n' % (k, v.rstrip())
+                     for k, v in data.iteritems()]
+            fname = tempfile.mktemp()
+            fh = open(fname, "w")
+            fh.writelines(lines)
+            fh.close()
+            subprocess.call([self._editor, fname])
+            try:
+                data = self.parse_ticket_file(open(fname))
+            except ValueError:
+                print "Something went wrong or the file was formatted"
+                print "wrong. Please try submitting the ticket again"
+                print "or file a bug report with the TracShell devs."
+                return False
+            comment = data.pop('comment')
+            self.trac.update_ticket(id, comment, data)
+            print "Updated ticket %s: %s" % (id, comment)
+        else:
+            print "Ticket %s not found"
 
     # option setter funcs
     # see `do_set`
