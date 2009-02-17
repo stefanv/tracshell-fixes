@@ -33,7 +33,6 @@ class TracShell(cmd.Cmd):
         self._host = host
         self._port = port
         self._rpc_path = rpc_path
-        self._server = self._connect()
         self._editor = self._find_editor()
         self.trac = Trac(self._username,
                          self._password,
