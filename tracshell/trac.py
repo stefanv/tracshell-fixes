@@ -80,6 +80,13 @@ class Trac(object):
         ticket = self._server.ticket.get(id)
         return ticket
 
+    def get_ticket_changelog(self, id):
+        """
+        Get the comments for a ticket
+        """
+        changes = self._server.ticket.changeLog(id)
+        return changes
+
     @catch_errors
     def create_ticket(self, summary, description, data):
         """

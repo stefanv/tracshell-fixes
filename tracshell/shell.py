@@ -94,6 +94,23 @@ class TracShell(cmd.Cmd):
         else:
             print "Ticket %s not found" % ticket_id
 
+    def do_changelog(self, ticket_id):
+        """
+        View the changes to a ticket
+        
+        Arguments:
+        - `ticket_id`: An integer id of the ticket to view
+        """
+        changes = self.trac.get_ticket_changelog(int(ticket_id))
+        print "Changelog for Ticket %s:\n" % ticket_id
+        if changes:
+            for change in changes:
+                (time, author, field, old, new, pflag) = change
+                print "%s by %s:" % (time, author)
+                print "Changed '%s' from '%s' to '%s'\n" % (field,
+                                                            old,
+                                                            new)
+        
     def do_create(self, param_str):
         """
         Create and submit a new ticket to Trac instance
