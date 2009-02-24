@@ -178,10 +178,10 @@ class TracShell(cmd.Cmd):
 
         ticket = self.trac.get_ticket(int(ticket_id))
         if ticket:
-            (id, created, modified, data) = ticket
-            data['comment'] = "Your comment here"
+            (id, created, modified, orig_data) = ticket
+            orig_data['comment'] = "Your comment here"
             lines = ['%s=%s\n' % (k, v.rstrip())
-                     for k, v in data.iteritems()]
+                     for k, v in orig_data.iteritems()]
             fname = tempfile.mktemp()
             fh = open(fname, "w")
             fh.writelines(lines)
@@ -195,6 +195,12 @@ class TracShell(cmd.Cmd):
                 print "or file a bug report with the TracShell devs."
                 return False
             comment = data.pop('comment')
+            # submit the difference between what went into the editor
+            # and what came out
+            orig_data.pop('comment') # we just popped it from data
+            for k, v in orig_data.iteritems():
+                if v in data[k]:
+                    data.pop(k)
             self.trac.update_ticket(id, comment, data)
             print "Updated ticket %s: %s" % (id, comment)
         else:

@@ -1,4 +1,5 @@
 import sys
+import traceback
 import xmlrpclib
 
 def catch_errors(fn):
@@ -23,6 +24,10 @@ def catch_errors(fn):
             print "If you think this message is the result of an error,"
             print "please file a report with the TracShell developers."
             pass
+        except:
+            (type, value, trace) = sys.exc_info()
+            print "SOMETHING BLEW UP: %s %s" % (type, value)
+            print traceback.format_tb(trace)
     return wrapped
 
 class Trac(object):
