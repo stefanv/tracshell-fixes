@@ -197,7 +197,7 @@ class TracShell(cmd.Cmd):
             comment = data.pop('comment')
             # submit the difference between what went into the editor
             # and what came out
-#            orig_data.pop('comment') # we just popped it from data
+            orig_data.pop('comment') # we just popped it from data
             for k, v in orig_data.iteritems():
                 if v in data[k]:
                     data.pop(k)
