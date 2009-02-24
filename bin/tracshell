@@ -2,7 +2,9 @@
 
 import sys
 from optparse import OptionParser
-from tracshell import shell
+from tracshell import shell, handlers
+
+sys.excepthook = handlers.exception_handler
 
 def run():
     """
