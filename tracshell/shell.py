@@ -17,15 +17,16 @@ class TracShell(cmd.Cmd):
         http://trac-hacks.org/wiki/XmlRpcPlugin#DownloadandSource
     """
 
-    def __init__(self, username, password, host, port=80, rpc_path='/login/xmlrpc'):
-        """
-        Initialize the XML-RPC interface to a Trac instance
-        
+    def __init__(self, username, password, host, port=80,
+                 secure=False, rpc_path='/login/xmlrpc'):
+        """ Initialize the XML-RPC interface to a Trac instance.
+
         Arguments:
         - `username`: the user to authenticate as
         - `password`: a valid password
         - `host`: the host name serving the Trac instance
         - `port`: defaults to 80
+        - `secure`: whether https (SSL) is used
         - `rpc_path`: the path to the XML-RPC interface of the Trac interface
         """
         self._username = username
@@ -33,11 +34,13 @@ class TracShell(cmd.Cmd):
         self._host = host
         self._port = port
         self._rpc_path = rpc_path
+        self._secure = secure
         self._editor = self._find_editor()
         self.trac = Trac(self._username,
                          self._password,
                          self._host,
                          self._port,
+                         self._secure,
                          self._rpc_path)
 
         # set up shell options

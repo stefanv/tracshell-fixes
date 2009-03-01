@@ -37,21 +37,23 @@ class Trac(object):
     available.
     """
 
-    def __init__(self, user, passwd, host, port, path):
+    def __init__(self, user, passwd, host, port, secure, path):
         """
         Initialize a server proxy object
-        
+
         Arguments:
         - `user`:
         - `passwd`:
         - `host`:
         - `port`:
+        - `https`:
         - `path`:
         """
         self._user = user
         self._passwd = passwd
         self._host = host
         self._port = port
+        self._secure = secure
         self._path = path
         self._server = self._connect()
 
@@ -59,7 +61,13 @@ class Trac(object):
         """
         Return an xmlrpc.ServerProxy instance
         """
-        conn_str = "http://%s:%s@%s:%s%s" % (self._user,
+        if self._secure:
+            protocol = 'https'
+        else:
+            protocol = 'http'
+
+        conn_str = "%s://%s:%s@%s:%s%s" % (protocol,
+                                             self._user,
                                              self._passwd,
                                              self._host,
                                              self._port,

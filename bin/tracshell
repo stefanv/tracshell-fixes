@@ -12,13 +12,15 @@ def run():
     p.add_option("--host", "-t", dest="host",
                  action="store", type="string",
                  default="localhost", help="Trac instance host")
-    p.add_option("--port", "-p", dest="port",
+    p.add_option("--port", "-P", dest="port",
                  action="store", type="int",
-                 default=80, help="Trac instance port")
+                 default=None, help="Trac instance port")
+    p.add_option("-s", action="store_true", dest="secure",
+                 help="https (SSL) connection")
     p.add_option("--user", "-u", dest="user",
                  action="store", type="string",
                  default="anon", help="Trac username")
-    p.add_option("--pass", "-s", dest="passwd",
+    p.add_option("--pass", "-p", dest="passwd",
                  action="store", type="string",
                  default="anon", help="Trac password")
     p.add_option("--path", "-a", dest="rpc_path",
@@ -26,10 +28,17 @@ def run():
                  default="/login/xmlrpc", help="XML-RPC path")
     opts, args = p.parse_args()
 
+    if not opts.port:
+        if opts.secure:
+            opts.port = 443
+        else:
+            opts.port = 80
+
     tracshell = shell.TracShell(opts.user,
                                 opts.passwd,
                                 opts.host,
                                 port=opts.port,
+                                secure=opts.secure,
                                 rpc_path=opts.rpc_path)
 
     tracshell.cmdloop()
