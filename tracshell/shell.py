@@ -79,6 +79,8 @@ class TracShell(cmd.Cmd):
         else:
             print "Query returned no results"
 
+    do_q = do_query
+
     def do_view(self, ticket_id):
         """
         View a specific ticket in trac
@@ -98,6 +100,8 @@ class TracShell(cmd.Cmd):
         else:
             print "Ticket %s not found" % ticket_id
 
+    do_v = do_view
+
     def do_changelog(self, ticket_id):
         """
         View the changes to a ticket
@@ -114,7 +118,9 @@ class TracShell(cmd.Cmd):
                 print "Changed '%s' from '%s' to '%s'\n" % (field,
                                                             old,
                                                             new)
-        
+
+    do_log = do_changelog
+
     def do_create(self, param_str):
         """
         Create and submit a new ticket to Trac instance
@@ -167,6 +173,8 @@ class TracShell(cmd.Cmd):
             print "Try `help create` for more info"
             pass
 
+    do_c = do_create
+
     def do_edit(self, ticket_id):
         """
         Edit a ticket in Trac
@@ -209,6 +217,8 @@ class TracShell(cmd.Cmd):
             print "Updated ticket %s: %s" % (id, comment)
         else:
             print "Ticket %s not found"
+
+    do_e = do_edit
 
     # option setter funcs
     # see `do_set`
@@ -288,6 +298,8 @@ class TracShell(cmd.Cmd):
         # possible bug?
         print "Goodbye!"
         sys.exit()
+
+    do_Q = do_quit
 
     # misc help functions
 
