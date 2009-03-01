@@ -69,6 +69,10 @@ class TracShell(cmd.Cmd):
         Arguments:
         - `query`: A Trac query string (see `help queries` for more info)
         """
+        if not(query.strip()):
+            print "No query specified."
+            return
+
         tickets = self.trac.query_tickets(query)
         if tickets:
             for ticket in tickets:
@@ -88,7 +92,12 @@ class TracShell(cmd.Cmd):
         Arguments:
         - `ticket_id`: An integer id of the ticket to view
         """
-        ticket = self.trac.get_ticket(int(ticket_id))
+        try:
+            ticket = self.trac.get_ticket(int(ticket_id))
+        except ValueError:
+            print "Invalid ticket nr specified."
+            return
+
         if ticket:
             (id, created, modified, data) = ticket
             data['created'] = created
@@ -109,7 +118,12 @@ class TracShell(cmd.Cmd):
         Arguments:
         - `ticket_id`: An integer id of the ticket to view
         """
-        changes = self.trac.get_ticket_changelog(int(ticket_id))
+        try:
+            changes = self.trac.get_ticket_changelog(int(ticket_id))
+        except ValueError:
+            print "Invalid ticket id specified."
+            return
+
         print "Changelog for Ticket %s:\n" % ticket_id
         if changes:
             for change in changes:
@@ -188,7 +202,12 @@ class TracShell(cmd.Cmd):
         - `ticket_id`: the id of the ticket to edit
         """
 
-        ticket = self.trac.get_ticket(int(ticket_id))
+        try:
+            ticket = self.trac.get_ticket(int(ticket_id))
+        except ValueError:
+            print "Invalid ticket id specified."
+            return
+
         if ticket:
             (id, created, modified, orig_data) = ticket
             orig_data['comment'] = "Your comment here"
