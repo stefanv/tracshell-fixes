@@ -3,6 +3,7 @@ import cmd
 import subprocess
 import tempfile
 import xmlrpclib
+import shlex
 
 from trac import Trac
 
@@ -142,7 +143,7 @@ class TracShell(cmd.Cmd):
                               "keywords=\n"]
             fh.writelines(template_lines)
             fh.close()
-            subprocess.call([self._editor, fname])
+            subprocess.call(self._editor.split() + [fname])
             try:
                 data = self.parse_ticket_file(open(fname))
             except ValueError:
@@ -216,11 +217,11 @@ class TracShell(cmd.Cmd):
         """
         Set the path to the editor to invoke for manipulating
         tickets, comments, etc.
-        
+
         Arguments:
         - `editor`: the path to an editor
         """
-        if os.path.exists(editor):
+        if os.path.exists(editor.split(' ')[0]):
             self._editor = editor
         else:
             raise ValueError, "Not a valid path to an editor"
@@ -242,7 +243,7 @@ class TracShell(cmd.Cmd):
         """
         try:
             data = self.parse_query_str(query_str)
-        except ValueError:
+        except ValueError, e:
             print "Warning: Invalid query string for `set`"
             print "Try fixing %s" % query_str
             print "See `help queries` for more information."
@@ -256,16 +257,14 @@ class TracShell(cmd.Cmd):
                     print e
                     pass
         
-    def parse_query_str(self, string):
+    def parse_query_str(self, q):
         """
         Parse a query string
-        
+
         Arguments:
-        - `string`: A string in the form of field=val
-                    and seperated by &.
+        - `string`: A string in the form of field1=val field2="long val"
         """
-        pairs = string.split('&')
-        data = dict([item.split('=') for item in pairs])
+        data = dict([item.split('=') for item in shlex.split(q)])
         return data
 
     def parse_ticket_file(self, fh):
