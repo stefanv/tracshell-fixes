@@ -1,6 +1,7 @@
 import sys
 import traceback
 import xmlrpclib
+import shlex
 
 def catch_errors(fn):
     """
@@ -79,6 +80,7 @@ class Trac(object):
         """
         Query the Trac ticket database
         """
+        query = '&'.join(shlex.split(query))
         multicall = xmlrpclib.MultiCall(self._server)
         for ticket in self._server.ticket.query(query):
             multicall.ticket.get(ticket)

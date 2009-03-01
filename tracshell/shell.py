@@ -297,15 +297,12 @@ class TracShell(cmd.Cmd):
 
            field=value
 
-        Multiple queries can be stringed together
-        by an ampersand:
+        Multiple queries can be stringed together:
 
-           field1=value1&field2=value2
+           field1=value1 field2="long value2"
 
-        Don't be afraid of spaces in the values. Everything
-        is handled and interpreted correctly. Just make sure
-        that there's one '=' between field and value and one
-        '&' between field/value pairs.
+        Values with spaces should be quoted.
+
         """
         print text
 
